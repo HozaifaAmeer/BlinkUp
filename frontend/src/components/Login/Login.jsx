@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { BASE_URL } from "../../config";
+import { apiFetch } from "../../config";
 import "./Login.css";
 
 export default function Login() {
@@ -32,7 +32,7 @@ export default function Login() {
     setSubmitting(true);
 
     try {
-      const res = await fetch(`${BASE_URL}/auth/login`, {
+      const res = await apiFetch("/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

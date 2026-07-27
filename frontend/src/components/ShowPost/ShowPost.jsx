@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { BASE_URL } from "../../config";
+import { apiFetch } from "../../config";
 import "./ShowPage.css";
 
 export default function ShowPost() {
@@ -21,7 +21,7 @@ export default function ShowPost() {
   const fetchPostDetails = (attempt = 1) => {
     setLoading(true);
     setError(null);
-    fetch(`${BASE_URL}/posts/${id}`)
+    apiFetch(`/posts/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Post not found or server is starting up");
         return res.json();
@@ -49,7 +49,7 @@ export default function ShowPost() {
       setDeleting(true);
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`${BASE_URL}/posts/${id}`, {
+        const res = await apiFetch(`/posts/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -89,7 +89,7 @@ export default function ShowPost() {
     setSubmittingComment(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${BASE_URL}/posts/${id}/comments`, {
+      const res = await apiFetch(`/posts/${id}/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -127,8 +127,8 @@ export default function ShowPost() {
     if (!window.confirm("Delete this comment?")) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(
-        `${BASE_URL}/posts/${id}/comments/${commentId}`,
+      const res = await apiFetch(
+        `/posts/${id}/comments/${commentId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

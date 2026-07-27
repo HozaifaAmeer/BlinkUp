@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { BASE_URL } from "../../config";
+import { apiFetch } from "../../config";
 import "./Register.css";
 
 export default function Register() {
@@ -46,7 +46,7 @@ export default function Register() {
     setSubmitting(true);
 
     try {
-      const res = await fetch(`${BASE_URL}/auth/register`, {
+      const res = await apiFetch("/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

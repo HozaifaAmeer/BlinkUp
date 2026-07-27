@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { BASE_URL } from "../../config";
+import { apiFetch } from "../../config";
 import "./EditPost.css";
 
 export default function EditPost() {
@@ -21,7 +21,7 @@ export default function EditPost() {
   const fetchPostDetails = (attempt = 1) => {
     setLoading(true);
     setError(null);
-    fetch(`${BASE_URL}/posts/${id}`)
+    apiFetch(`/posts/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load post details");
         return res.json();
@@ -84,7 +84,7 @@ export default function EditPost() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${BASE_URL}/posts/${id}`, {
+      const res = await apiFetch(`/posts/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

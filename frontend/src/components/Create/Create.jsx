@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { BASE_URL } from "../../config";
+import { apiFetch } from "../../config";
 import "./Create.css";
 
 export default function Create() {
@@ -54,7 +54,7 @@ export default function Create() {
         return;
       }
 
-      const res = await fetch(`${BASE_URL}/posts`, {
+      const res = await apiFetch("/posts", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

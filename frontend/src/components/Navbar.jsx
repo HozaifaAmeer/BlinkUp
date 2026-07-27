@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { BASE_URL } from "../config";
+import { apiFetch } from "../config";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function Navbar() {
     if (token && storedUser) {
       setUser(JSON.parse(storedUser));
       // Verify token validity with backend
-      fetch(`${BASE_URL}/auth/me`, {
+      apiFetch("/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => {

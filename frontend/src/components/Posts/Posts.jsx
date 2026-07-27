@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { BASE_URL } from "../../config";
+import { apiFetch, PRIMARY_URL } from "../../config";
 
 export default function Posts() {
   const [posts, setPosts] = useState([]);
@@ -14,21 +14,19 @@ export default function Posts() {
   const fetchPosts = async (attempt = 1) => {
     setLoading(true);
     setError(null);
+
     if (attempt > 1) {
-      setStatusMessage(`Waking up backend server (attempt ${attempt}/3)...`);
+      setStatusMessage(`Waking up server, please wait a moment (attempt ${attempt}/3)...`);
     } else {
-      setStatusMessage("Loading posts...");
+      setStatusMessage("Loading posts... (waking up server if inactive)");
     }
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout
-
-      const res = await fetch(`${BASE_URL}/posts`, { signal: controller.signal });
-      clearTimeout(timeoutId);
+      // Use apiFetch helper which tries primary URL and falls back to localhost if primary fails
+      const res = await apiFetch("/posts");
 
       if (!res.ok) {
-        throw new Error(`Server returned ${res.status} ${res.statusText}`);
+        throw new Error(`Server returned status ${res.status}`);
       }
 
       const data = await res.json();
@@ -36,17 +34,15 @@ export default function Posts() {
       setLoading(false);
     } catch (err) {
       console.error("Fetch posts attempt", attempt, "failed:", err);
-      // Auto-retry up to 3 times for cold-starting backend servers (Render free tier)
+
       if (attempt < 3) {
-        setStatusMessage(`Backend server is spinning up, retrying in 3 seconds...`);
+        setStatusMessage(`Server is waking up, retrying in 2 seconds...`);
         setTimeout(() => {
           fetchPosts(attempt + 1);
-        }, 3000);
+        }, 2000);
       } else {
         setError(
-          err.name === "AbortError"
-            ? "Server request timed out. The backend server might be starting up."
-            : err.message || "Failed to fetch posts. Please check your internet or backend server connection."
+          "Unable to connect to the backend server. If using local dev, ensure the backend is running (`npm start` in /backend on port 8000). If deployed, the server may take up to 45 seconds to wake up on Render."
         );
         setLoading(false);
       }
