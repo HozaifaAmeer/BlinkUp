@@ -30,7 +30,12 @@ if (!process.env.MONGO_URI) {
         });
 }
 
-app.use(cors());
+// Enable CORS with explicit settings for headers and credentials
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

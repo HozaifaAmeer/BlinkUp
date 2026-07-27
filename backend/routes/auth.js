@@ -1,6 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.js");
+const authenticateToken = require("../middleware/auth.js");
 
 const router = express.Router();
 
@@ -109,6 +110,26 @@ router.post("/login", async (req, res) => {
   } catch (err) {
     console.error("Login error:", err.message);
     res.status(500).json({ error: "Failed to log in" });
+  }
+});
+
+// GET /auth/me — Verify current token and return user details
+router.get("/me", authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json({
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    console.error("Auth check error:", err.message);
+    res.status(500).json({ error: "Failed to verify session" });
   }
 });
 

@@ -18,10 +18,12 @@ export default function ShowPost() {
   const stored = localStorage.getItem("user");
   const currentUser = stored ? JSON.parse(stored) : null;
 
-  useEffect(() => {
+  const fetchPostDetails = (attempt = 1) => {
+    setLoading(true);
+    setError(null);
     fetch(`${BASE_URL}/posts/${id}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Post not found");
+        if (!res.ok) throw new Error("Post not found or server is starting up");
         return res.json();
       })
       .then((data) => {
@@ -29,9 +31,17 @@ export default function ShowPost() {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message);
-        setLoading(false);
+        if (attempt < 2) {
+          setTimeout(() => fetchPostDetails(attempt + 1), 2000);
+        } else {
+          setError(err.message || "Failed to fetch post details");
+          setLoading(false);
+        }
       });
+  };
+
+  useEffect(() => {
+    fetchPostDetails();
   }, [id]);
 
   const handleDelete = async () => {
@@ -45,8 +55,16 @@ export default function ShowPost() {
             Authorization: `Bearer ${token}`,
           },
         });
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.dispatchEvent(new Event("authChange"));
+          toast.error("Session expired. Please log in again.");
+          navigate("/login");
+          return;
+        }
         if (!res.ok) {
-          const errData = await res.json();
+          const errData = await res.json().catch(() => ({}));
           throw new Error(errData.error || "Failed to delete post");
         }
         toast.success("Post deleted successfully!");
@@ -79,14 +97,22 @@ export default function ShowPost() {
         },
         body: JSON.stringify({ comment: commentText }),
       });
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.dispatchEvent(new Event("authChange"));
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+        return;
+      }
       if (!res.ok) {
-        const errData = await res.json();
+        const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || "Failed to add comment");
       }
       const newComment = await res.json();
       setPost((prev) => ({
         ...prev,
-        comment: [...prev.comment, newComment],
+        comment: [...(prev.comment || []), newComment],
       }));
       setCommentText("");
       toast.success("Comment added!");
@@ -108,8 +134,16 @@ export default function ShowPost() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.dispatchEvent(new Event("authChange"));
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+        return;
+      }
       if (!res.ok) {
-        const errData = await res.json();
+        const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || "Failed to delete comment");
       }
       setPost((prev) => ({
@@ -131,22 +165,30 @@ export default function ShowPost() {
 
   if (loading) {
     return (
-      <div className="show-loading-container">
-        <div className="show-spinner"></div>
-        <p className="show-loading-text">Loading post...</p>
+      <div className="show-loading-container text-center py-5">
+        <div className="show-spinner mb-3"></div>
+        <p className="show-loading-text text-muted">Loading post details...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="show-error-container">
-        <i className="fa-solid fa-triangle-exclamation show-error-icon"></i>
+      <div className="show-error-container text-center py-5">
+        <i className="fa-solid fa-triangle-exclamation show-error-icon text-warning mb-3 fs-1"></i>
         <h3>Something went wrong</h3>
-        <p>{error}</p>
-        <Link to="/posts" className="show-back-link">
-          <i className="fa-solid fa-arrow-left"></i> Back to Posts
-        </Link>
+        <p className="text-muted mb-4">{error}</p>
+        <div className="d-flex gap-3 justify-content-center">
+          <button
+            className="btn btn-primary px-4"
+            onClick={() => fetchPostDetails(1)}
+          >
+            <i className="fa-solid fa-rotate-right me-2"></i> Try Again
+          </button>
+          <Link to="/posts" className="btn btn-outline-secondary px-4">
+            <i className="fa-solid fa-arrow-left me-2"></i> Back to Posts
+          </Link>
+        </div>
       </div>
     );
   }

@@ -6,24 +6,55 @@ export default function Posts() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [statusMessage, setStatusMessage] = useState("Loading posts...");
   const [searchParams, setSearchParams] = useSearchParams();
 
   const searchQuery = searchParams.get("search") || "";
 
+  const fetchPosts = async (attempt = 1) => {
+    setLoading(true);
+    setError(null);
+    if (attempt > 1) {
+      setStatusMessage(`Waking up backend server (attempt ${attempt}/3)...`);
+    } else {
+      setStatusMessage("Loading posts...");
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout
+
+      const res = await fetch(`${BASE_URL}/posts`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status} ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      setPosts(data);
+      setLoading(false);
+    } catch (err) {
+      console.error("Fetch posts attempt", attempt, "failed:", err);
+      // Auto-retry up to 3 times for cold-starting backend servers (Render free tier)
+      if (attempt < 3) {
+        setStatusMessage(`Backend server is spinning up, retrying in 3 seconds...`);
+        setTimeout(() => {
+          fetchPosts(attempt + 1);
+        }, 3000);
+      } else {
+        setError(
+          err.name === "AbortError"
+            ? "Server request timed out. The backend server might be starting up."
+            : err.message || "Failed to fetch posts. Please check your internet or backend server connection."
+        );
+        setLoading(false);
+      }
+    }
+  };
+
   useEffect(() => {
-    fetch(`${BASE_URL}/posts`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch posts");
-        return res.json();
-      })
-      .then((data) => {
-        setPosts(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+    fetchPosts();
   }, []);
 
   // Filter posts by category (case-insensitive partial match)
@@ -39,19 +70,26 @@ export default function Posts() {
 
   if (loading) {
     return (
-      <div className="posts-loading-container">
-        <div className="posts-spinner"></div>
-        <p className="posts-loading-text">Loading posts...</p>
+      <div className="posts-loading-container text-center py-5">
+        <div className="posts-spinner mb-3"></div>
+        <p className="posts-loading-text fw-medium text-secondary">{statusMessage}</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="posts-error-container">
-        <i className="fa-solid fa-triangle-exclamation posts-error-icon"></i>
+      <div className="posts-error-container text-center py-5">
+        <i className="fa-solid fa-triangle-exclamation posts-error-icon mb-3 text-warning fs-1"></i>
         <h3>Something went wrong</h3>
-        <p>{error}</p>
+        <p className="text-muted mb-4">{error}</p>
+        <button
+          className="btn btn-primary px-4 py-2"
+          onClick={() => fetchPosts(1)}
+          style={{ borderRadius: "8px", fontWeight: "600" }}
+        >
+          <i className="fa-solid fa-rotate-right me-2"></i> Try Again
+        </button>
       </div>
     );
   }

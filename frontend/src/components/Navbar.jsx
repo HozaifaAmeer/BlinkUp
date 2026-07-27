@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { BASE_URL } from "../config";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -8,9 +9,35 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      setUser(JSON.parse(stored));
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (token && storedUser) {
+      setUser(JSON.parse(storedUser));
+      // Verify token validity with backend
+      fetch(`${BASE_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => {
+          if (res.status === 401 || res.status === 403) {
+            // Stale or expired token
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            setUser(null);
+            window.dispatchEvent(new Event("authChange"));
+          } else if (res.ok) {
+            return res.json();
+          }
+        })
+        .then((data) => {
+          if (data && data.user) {
+            setUser(data.user);
+            localStorage.setItem("user", JSON.stringify(data.user));
+          }
+        })
+        .catch(() => {
+          // Ignore network errors on token check (offline/cold start)
+        });
     }
 
     const handleStorage = () => {

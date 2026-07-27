@@ -18,7 +18,9 @@ export default function EditPost() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const fetchPostDetails = (attempt = 1) => {
+    setLoading(true);
+    setError(null);
     fetch(`${BASE_URL}/posts/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load post details");
@@ -35,9 +37,17 @@ export default function EditPost() {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message);
-        setLoading(false);
+        if (attempt < 2) {
+          setTimeout(() => fetchPostDetails(attempt + 1), 2000);
+        } else {
+          setError(err.message || "Failed to load post details");
+          setLoading(false);
+        }
       });
+  };
+
+  useEffect(() => {
+    fetchPostDetails();
   }, [id]);
 
   const handleChange = (e) => {
@@ -82,8 +92,17 @@ export default function EditPost() {
         body: data,
       });
 
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.dispatchEvent(new Event("authChange"));
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+        return;
+      }
+
       if (!res.ok) {
-        const errData = await res.json();
+        const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || "Failed to update post");
       }
 
@@ -108,11 +127,20 @@ export default function EditPost() {
   if (error) {
     return (
       <div className="container text-center mt-5 mb-5">
-        <h3>Error</h3>
-        <p className="text-danger">{error}</p>
-        <Link to="/posts" className="btn btn-secondary mt-2">
-          Back to Posts
-        </Link>
+        <i className="fa-solid fa-triangle-exclamation text-warning fs-1 mb-3"></i>
+        <h3>Something went wrong</h3>
+        <p className="text-danger mb-4">{error}</p>
+        <div className="d-flex gap-3 justify-content-center">
+          <button
+            className="btn btn-primary px-4"
+            onClick={() => fetchPostDetails(1)}
+          >
+            <i className="fa-solid fa-rotate-right me-2"></i> Try Again
+          </button>
+          <Link to="/posts" className="btn btn-secondary px-4">
+            Back to Posts
+          </Link>
+        </div>
       </div>
     );
   }
