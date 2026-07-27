@@ -1,0 +1,234 @@
+.show-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: black;
+  opacity: 0.9;
+  text-decoration: none;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+}
+
+.show-img {
+  height: 18rem;
+  width: 35rem;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.show-category {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--accent-color);
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+}
+
+.show-description {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: black;
+  margin-bottom: 24px;
+}
+
+/* Meta / Date */
+.show-meta {
+  padding-top: 18px;
+  border-top: 1px solid var(--border-color);
+}
+
+.show-date {
+  font-size: 0.9rem;
+  color: black;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.show-date i {
+  color: var(--accent-color);
+  font-size: 0.85rem;
+}
+
+/* Loading State */
+.show-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 20px;
+}
+
+.show-spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--accent-color);
+  animation: showSpin 0.8s linear infinite;
+}
+
+@keyframes showSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.show-loading-text {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Error State */
+.show-error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.show-error-icon {
+  font-size: 3rem;
+  color: #ef4444;
+  margin-bottom: 16px;
+}
+
+.show-error-container h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.show-error-container p {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+/* ── Section Divider ── */
+.show-section-divider {
+  border: none;
+  border-top: 2px solid #1f2937;
+  margin: 32px 0;
+}
+
+/* ── Comment Form Section ── */
+.show-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: black;
+  margin-bottom: 16px;
+}
+
+.show-comment-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.show-comment-textarea:focus {
+  border-color: var(--accent-color);
+}
+
+.show-login-prompt {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.show-login-prompt a {
+  color: var(--accent-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ── Comment Cards ── */
+.show-comments-section {
+  margin-bottom: 20px;
+}
+
+.show-comment-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: #fafafa;
+}
+
+.show-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.show-comment-username {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.show-comment-username i {
+  color: var(--accent-color);
+  font-size: 0.8rem;
+}
+
+.show-comment-date {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.show-comment-text {
+  font-size: 0.95rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.show-comment-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.show-comment-delete-btn:hover {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.show-no-comments {
+  font-size: 0.95rem;
+  color: #9ca3af;
+  text-align: center;
+  padding: 20px 0;
+}
+
