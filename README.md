@@ -71,12 +71,12 @@ This project was developed to strengthen full-stack development skills using Rea
 ```text
 BlinkUp/
 │
-├── client/
+├── frontend/
 │   ├── src/
 │   ├── public/
 │   └── package.json
 │
-├── server/
+├── banckend/
 │   ├── controllers/
 │   ├── models/
 │   ├── routes/
