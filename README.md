@@ -180,7 +180,4 @@ Contributions are welcome.
 
 ---
 
-## ⭐ Support
-
-If you found this project helpful, consider giving it a **⭐ Star** on GitHub. It helps others discover the project and motivates future improvements.
 
